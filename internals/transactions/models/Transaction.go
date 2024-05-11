@@ -10,10 +10,7 @@ type Transaction struct {
 	OperationType int
 	Amount        float64
 	EventDate     time.Time
-	ID            uint      `gorm:"primarykey"`
-	CreatedAt     time.Time `json:"-"`
-	UpdatedAt     time.Time `json:"-"`
-	IsDeleted     bool      `json:"-"`
+	ID            uint `gorm:"primarykey"`
 }
 
 func (t *Transaction) ValidateTransaction() error {

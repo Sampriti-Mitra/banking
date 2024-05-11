@@ -1,0 +1,127 @@
+basePath: /api/v1
+definitions:
+  models.Account:
+    properties:
+      documentId:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.Transaction:
+    properties:
+      accountID:
+        type: integer
+      amount:
+        type: number
+      eventDate:
+        type: string
+      id:
+        type: integer
+      operationType:
+        type: integer
+    type: object
+  utils.ErrorMsg:
+    properties:
+      errMsg:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a transaction/banking server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Swagger Banking API
+  version: "1.0"
+paths:
+  /accounts/:
+    post:
+      consumes:
+      - application/json
+      description: create an account
+      parameters:
+      - description: Account Create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Account'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorMsg'
+      summary: create an account
+      tags:
+      - accounts
+  /accounts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorMsg'
+      summary: Get an account
+      tags:
+      - accounts
+  /transactions/:
+    post:
+      consumes:
+      - application/json
+      description: create a transaction
+      parameters:
+      - description: Account Create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Transaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorMsg'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorMsg'
+      summary: create transaction
+      tags:
+      - transaction
+swagger: "2.0"
