@@ -32,16 +32,19 @@ import (
 
 func main() {
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
 		os.Getenv("MYSQL_USER"),
 		os.Getenv("MYSQL_PASSWORD"),
 		os.Getenv("MYSQL_HOST"),
 		os.Getenv("MYSQL_PORT"),
 		os.Getenv("MYSQL_DBNAME"))
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	var db *gorm.DB
+	var err error
+
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 	}
 
 	txnRepo, err := repo.NewTransactionRepo(db)
@@ -56,7 +59,7 @@ func main() {
 	v1 := base.Group("/v1")
 
 	v1.POST("/accounts", txnCntrl.CreateAccount)
-	v1.GET("/accounts/{id}", txnCntrl.GetAccount)
+	v1.GET("/accounts/:id", txnCntrl.GetAccount)
 	v1.POST("/transactions", txnCntrl.CreateTransaction)
 
 	docs.SwaggerInfo.BasePath = "/api/v1"

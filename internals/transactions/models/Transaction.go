@@ -17,7 +17,10 @@ func (t *Transaction) ValidateTransaction() error {
 	if t.OperationType > 4 || t.OperationType < 0 {
 		return errors.New("transaction operation invalid")
 	}
-	if t.Amount < 0 {
+	if t.Amount < 0 && t.OperationType == 4 {
+		return errors.New("transaction amount is invalid")
+	}
+	if t.Amount > 0 && t.OperationType < 4 {
 		return errors.New("transaction amount is invalid")
 	}
 	return nil
