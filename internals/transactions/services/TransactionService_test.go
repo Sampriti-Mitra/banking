@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/Sampriti-Mitra/transactions/internals/transactions/mocks"
 	"github.com/Sampriti-Mitra/transactions/internals/transactions/models"
@@ -14,7 +15,7 @@ import (
 
 func TestNewTransactionService(t *testing.T) {
 	type args struct {
-		tRepo *repo.TransactionRepo
+		tRepo repo.ITransactionRepo
 	}
 	tests := []struct {
 		name string
@@ -190,8 +191,18 @@ func TestTransactionService_FetchAccount(t *testing.T) {
 }
 
 func TestTransactionService_CreateTransaction(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockRepo := mocks.NewMockITransactionRepo(ctrl)
+
+	testTxnModel := &models.Transaction{
+		AccountID:     1,
+		OperationType: 4,
+		Amount:        120,
+		ID:            1,
+		EventDate:     time.Now(),
+	}
 	type fields struct {
-		tRepo repo.TransactionRepo
+		tRepo repo.ITransactionRepo
 	}
 	type args struct {
 		txn *models.Transaction
@@ -200,16 +211,88 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
+		f       func()
 		want    *models.Transaction
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "create valid transaction",
+			fields: fields{
+				tRepo: mockRepo,
+			},
+			args: args{
+				txn: testTxnModel,
+			},
+			f: func() {
+				mockRepo.EXPECT().FetchAccount(int64(1)).Return(nil, nil)
+				mockRepo.EXPECT().CreateTransaction(testTxnModel).Return(nil)
+			},
+			want:    testTxnModel,
+			wantErr: false,
+		},
+		{
+			name: "create transaction with invalid accountId",
+			fields: fields{
+				tRepo: mockRepo,
+			},
+			args: args{
+				txn: testTxnModel,
+			},
+			f: func() {
+				mockRepo.EXPECT().FetchAccount(int64(1)).Return(nil, errors.New("account id not found"))
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "create transaction with invalid operation type",
+			fields: fields{
+				tRepo: mockRepo,
+			},
+			args: args{
+				txn: &models.Transaction{
+					AccountID:     1,
+					OperationType: 5, // invalid op type
+					Amount:        120,
+					ID:            1,
+					EventDate:     time.Now(),
+				},
+			},
+			f: func() {
+
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "create transaction with invalid amount for operation",
+			fields: fields{
+				tRepo: mockRepo,
+			},
+			args: args{
+				txn: &models.Transaction{
+					AccountID:     1,
+					OperationType: 4, // invalid op type
+					Amount:        -120.0,
+					ID:            1,
+					EventDate:     time.Now(),
+				},
+			},
+			f: func() {
+
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ts := &TransactionService{
-				tRepo: &tt.fields.tRepo,
+				tRepo: tt.fields.tRepo,
 			}
+
+			tt.f()
+
 			got, err := ts.CreateTransaction(tt.args.txn)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("TransactionService.CreateTransaction() error = %v, wantErr %v", err, tt.wantErr)
