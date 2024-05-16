@@ -69,6 +69,8 @@ func TestTransactionRepo_CreateTransactionWithUpdatedBalance(t *testing.T) {
 		args    args
 		f       func()
 		wantErr bool
+		tx1Bal  float64
+		tx2Bal  float64
 	}{
 		// TODO: Add test cases.
 		{
@@ -83,6 +85,7 @@ func TestTransactionRepo_CreateTransactionWithUpdatedBalance(t *testing.T) {
 				},
 			},
 			f: func() {
+				db.Exec("truncate table transactions")
 				transaction := &models.Transaction{
 					AccountID:     1,
 					Amount:        -100,
@@ -90,10 +93,63 @@ func TestTransactionRepo_CreateTransactionWithUpdatedBalance(t *testing.T) {
 					EventDate:     time.Now(),
 					Balance:       -100,
 				}
-				err := db.Save(transaction).Error
-				fmt.Print(err)
-
+				db.Save(transaction)
 			},
+			tx1Bal:  0.0,
+			tx2Bal:  0.0,
+			wantErr: false,
+		},
+
+		{
+			name:   "Create transaction 2",
+			fields: fields{db: db},
+			args: args{
+				transaction: &models.Transaction{
+					AccountID:     1,
+					Amount:        100,
+					OperationType: 4,
+					EventDate:     time.Now(),
+				},
+			},
+			f: func() {
+				db.Exec("truncate table transactions")
+				transaction := &models.Transaction{
+					AccountID:     1,
+					Amount:        -120,
+					OperationType: 1,
+					EventDate:     time.Now(),
+					Balance:       -120,
+				}
+				db.Save(transaction)
+			},
+			tx1Bal:  -20,
+			tx2Bal:  0.0,
+			wantErr: false,
+		},
+		{
+			name:   "Create transaction 3",
+			fields: fields{db: db},
+			args: args{
+				transaction: &models.Transaction{
+					AccountID:     1,
+					Amount:        100,
+					OperationType: 4,
+					EventDate:     time.Now(),
+				},
+			},
+			f: func() {
+				db.Exec("truncate table transactions")
+				transaction := &models.Transaction{
+					AccountID:     1,
+					Amount:        -90,
+					OperationType: 1,
+					EventDate:     time.Now(),
+					Balance:       -90,
+				}
+				db.Save(transaction)
+			},
+			tx1Bal:  0.0,
+			tx2Bal:  10.0,
 			wantErr: false,
 		},
 	}
@@ -109,11 +165,14 @@ func TestTransactionRepo_CreateTransactionWithUpdatedBalance(t *testing.T) {
 				t.Errorf("TransactionRepo.CreateTransactionWithUpdatedBalance() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			var tx models.Transaction
-			db.Model(&models.Transaction{}).Where("account_id=1 and id=2").Find(&tx)
+			var tx2 models.Transaction
+			db.Model(&models.Transaction{}).Where("account_id=1 and id=2").Find(&tx2)
+			assert.Equal(t, tx2.Balance, tt.tx2Bal)
 
-			assert.Equal(t, tx.Balance, 0.0)
+			var tx1 models.Transaction
+			db.Model(&models.Transaction{}).Where("account_id=1 and id=1").Find(&tx1)
 
+			assert.Equal(t, tx1.Balance, tt.tx1Bal)
 		})
 	}
 }
