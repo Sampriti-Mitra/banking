@@ -67,6 +67,20 @@ func (mr *MockITransactionRepoMockRecorder) CreateTransaction(transaction any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTransaction", reflect.TypeOf((*MockITransactionRepo)(nil).CreateTransaction), transaction)
 }
 
+// CreateTransactionWithUpdatedBalance mocks base method.
+func (m *MockITransactionRepo) CreateTransactionWithUpdatedBalance(transaction *models.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTransactionWithUpdatedBalance", transaction)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateTransactionWithUpdatedBalance indicates an expected call of CreateTransactionWithUpdatedBalance.
+func (mr *MockITransactionRepoMockRecorder) CreateTransactionWithUpdatedBalance(transaction any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTransactionWithUpdatedBalance", reflect.TypeOf((*MockITransactionRepo)(nil).CreateTransactionWithUpdatedBalance), transaction)
+}
+
 // FetchAccount mocks base method.
 func (m *MockITransactionRepo) FetchAccount(accountId int64) (*models.Account, error) {
 	m.ctrl.T.Helper()

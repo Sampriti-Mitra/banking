@@ -196,10 +196,11 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 
 	testTxnModel := &models.Transaction{
 		AccountID:     1,
-		OperationType: 4,
-		Amount:        120,
+		OperationType: 1,
+		Amount:        -120,
 		ID:            1,
 		EventDate:     time.Now(),
+		Balance:       -120,
 	}
 	type fields struct {
 		tRepo repo.ITransactionRepo
@@ -253,7 +254,7 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 				txn: &models.Transaction{
 					AccountID:     1,
 					OperationType: 5, // invalid op type
-					Amount:        120,
+					Amount:        -120,
 					ID:            1,
 					EventDate:     time.Now(),
 				},
@@ -279,7 +280,6 @@ func TestTransactionService_CreateTransaction(t *testing.T) {
 				},
 			},
 			f: func() {
-
 			},
 			want:    nil,
 			wantErr: true,
