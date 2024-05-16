@@ -9,6 +9,7 @@ type Transaction struct {
 	AccountID     int64
 	OperationType int
 	Amount        float64
+	Balance       float64
 	EventDate     time.Time
 	ID            uint `gorm:"primarykey"`
 }

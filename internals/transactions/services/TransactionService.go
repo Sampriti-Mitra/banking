@@ -64,9 +64,17 @@ func (ts *TransactionService) CreateTransaction(txn *models.Transaction) (*model
 
 	txn.EventDate = time.Now()
 
-	err = ts.tRepo.CreateTransaction(txn)
+	switch txn.OperationType {
+	case 1, 2, 3:
+		txn.Balance = txn.Amount
+		err = ts.tRepo.CreateTransaction(txn)
+	case 4:
+		err = ts.tRepo.CreateTransactionWithUpdatedBalance(txn)
+	}
+
 	if err != nil {
 		return nil, utils.NewCustError(errors.New("internal server error"), 500)
 	}
+
 	return txn, nil
 }
